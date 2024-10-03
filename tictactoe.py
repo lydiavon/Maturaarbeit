@@ -1,4 +1,5 @@
 from random import randrange
+from minimax import minimax, evaluation
 # -1:X, 0: leer, 1:O
 spielfeld = [
     [0, 0, 0],
@@ -58,35 +59,48 @@ def update_spielfeld(gespielter_zug, aktiver_spieler):
     spielfeld[y_kord][x_kord] = aktiver_spieler
     return -aktiver_spieler    
 
-def compter_zug():
+def random_zug():
     while True:
         eingegebener_zug = randrange(1, 3), randrange(1, 3)
         zug_erlaubt, zug_koordinaten = eingabe_pruefen(eingegebener_zug)
         if zug_erlaubt:
             return zug_koordinaten
+        
+def minimax_zug():
+    global spielfeld
+    beste_bewertung = -1000
+    bester_zug = None
+
+    for i in range(3):
+        for j in range(3):
+            if spielfeld[i][j] == 0:
+                spielfeld[i][j] = 1
+                bewertung = minimax(spielfeld, 0, False)
+                spielfeld[i][j] = 0
+                #print(f"Bewertung für Zug ({i+1},{j+1}): {bewertung}")
+                if bewertung > beste_bewertung:
+                    beste_bewertung = bewertung
+                    bester_zug = (j, i)
+
+    if bester_zug:
+        x_kord, y_kord = bester_zug
+        spielfeld[y_kord][x_kord] = 1
+        #print(f"Minimax wählt Zug ({y_kord+1},{x_kord+1})")
+
+        
 
 def spiel_status():
-    runde_gewonnen = False
-    
-    for i in range(8):
-        voraussetzungen = gewinn_voraussetzung[i]
-        a = spielfeld[voraussetzungen[0][0]][voraussetzungen[0][1]]
-        b = spielfeld[voraussetzungen[1][0]][voraussetzungen[1][1]]
-        c = spielfeld[voraussetzungen[2][0]][voraussetzungen[2][1]]
-        if a == 0 or b == 0 or c == 0:
-            continue
-        if a == b and b == c:
-            runde_gewonnen = True
-            break
-    if runde_gewonnen == False:
-        return False    
-    if runde_gewonnen == True:
-        print("Gewonnen")
-        return True   #game_loop stoppen
-    
-    if all(item != 0 for row in spielfeld for item in row):
-        print("Unentschieden")
-        return True   #game_loop stoppen
+    ergebnis = evaluation(spielfeld)
+    if ergebnis is not None:
+        if ergebnis == 1:
+            print("Du hast verloren")
+        elif ergebnis == -1:
+            print("Du hast gewonnen")
+        else:
+            print("Unentschieden")
+        spielfeld_anzeigen()
+        return True
+    return False
 
 def game_loop():
     #Zug ausführen
@@ -96,11 +110,17 @@ def game_loop():
     aktiver_spieler = -1
     while runde_ende == False:
         spielfeld_anzeigen()
-        if aktiver_spieler == -1:
+        if aktiver_spieler == -1: #-1 = Mensch 
             gespielter_zug = eingabe()
+            aktiver_spieler = update_spielfeld(gespielter_zug, aktiver_spieler)
         else:
-            gespielter_zug = compter_zug()
-        aktiver_spieler = update_spielfeld(gespielter_zug, aktiver_spieler)
+            gespielter_zug = minimax_zug()
+            aktiver_spieler = aktiver_spieler *-1
+
+            #für zwei Spieler(Menschen)
+            #gespielter_zug = eingabe()
+            #aktiver_spieler = update_spielfeld(gespielter_zug, aktiver_spieler)
+        
         runde_ende = spiel_status()
     #ausgang_anzeigen()
 
