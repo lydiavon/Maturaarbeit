@@ -81,7 +81,7 @@ for row in range(3):
         button.grid(row=row + 1, column=column)
         buttons[row][column] = button
 
-button = tk.Button(frame, text="neues Spiel", font=("Consolas", 15), background=grau, foreground=weiss, command=neues_spiel)
+button = tk.Button(frame, text="Neues Spiel", font=("Consolas", 15), background=grau, foreground=weiss, command=neues_spiel)
 button.grid(row=4, column=0, columnspan=3, sticky="we")
 
 def spielart(*args):
@@ -111,13 +111,13 @@ def minimax(spielfeld, tiefe, max_spieler):
     """Rekursiver Aufruf des Minimax Algorithmus um Spielbaum zu erstellen und zu bewerten."""
     ergebnis, _ = evaluation(spielfeld)
     if ergebnis is not None:
-        if ergebnis == spielerX:
+        if ergebnis == spielerX: #MAX
             return 10 - tiefe # Positive Bewertung je früher der Gewinn
-        elif ergebnis == spielerO:
-            return tiefe - 10 # Negative Bewertung je früher der Verlust
+        elif ergebnis == spielerO: #MIN
+            return tiefe - 10 # Negative Bewertung je früher der Gewinn
         else:
             return 0 # Unendschieden
-    if max_spieler: # für Spieler O (Computer)
+    if max_spieler: # für Spieler X (Mensch)
         beste_bewertung = -1000
         for i in range(3):
             for j in range(3):
@@ -127,7 +127,7 @@ def minimax(spielfeld, tiefe, max_spieler):
                     spielfeld[i][j] = ""
                     beste_bewertung = max(beste_bewertung, bewertung)
         return beste_bewertung
-    else: # für Spieler X (Mensch)
+    else: # für Spieler O (Computer)
         beste_bewertung = 1000
         for i in range(3):
             for j in range(3):
@@ -157,8 +157,7 @@ def minimax_zug():
         x_kord, y_kord = bester_zug
         spielfeld[y_kord][x_kord] = spielerO
         button = buttons[y_kord][x_kord]
-        button.config(text="O", foreground= rot)
-
+        button.config(text="O", foreground = rot)
 
 def spiel_status():
     """Ändert Label und ändert die Farbe der gewinnenden Steine"""
